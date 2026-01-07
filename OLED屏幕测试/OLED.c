@@ -1,11 +1,10 @@
 #include "OLED.h"
 #include "OLED_Font.h"
 
-#include <REGX52.H>
+#include <STC89C5xRC.H>
 
-
-sbit OLED_SCL = P2^5;
-sbit OLED_SDA = P2^6;
+sbit OLED_SCL = P3^3;
+sbit OLED_SDA = P3^2;
 #define OLED_W_SCL(x)		OLED_SCL = x
 #define OLED_W_SDA(x)		OLED_SDA = x
 
@@ -83,8 +82,8 @@ void OLED_WriteData(uint8_t Data)
 
 /**
   * @brief  OLED设置光标位置
-  * @param  Y 以左上角为原点，向下方向的坐标，范围：0~7
-  * @param  X 以左上角为原点，向右方向的坐标，范围：0~127
+  * @param  Y 以左上角为原点，向下方向的坐标，范围：0～7
+  * @param  X 以左上角为原点，向右方向的坐标，范围：0～127
   * @retval 无
   */
 void OLED_SetCursor(uint8_t Y, uint8_t X)
@@ -95,7 +94,7 @@ void OLED_SetCursor(uint8_t Y, uint8_t X)
 }
 
 /**
-  * @brief  OLED清屏
+  * @brief  OLED清屏，用时挺久的，不要频繁清屏
   * @param  无
   * @retval 无
   */
@@ -114,8 +113,8 @@ void OLED_Clear(void)
 
 /**
   * @brief  OLED显示一个字符
-  * @param  Line 行位置，范围：1~4
-  * @param  Column 列位置，范围：1~16
+  * @param  Line 行位置，范围：1～4
+  * @param  Column 列位置，范围：1～16
   * @param  Char 要显示的一个字符，范围：ASCII可见字符
   * @retval 无
   */
@@ -136,8 +135,8 @@ void OLED_ShowChar(uint8_t Line, uint8_t Column, char Char)
 
 /**
   * @brief  OLED显示字符串
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
+  * @param  Line 起始行位置，范围：1～4
+  * @param  Column 起始列位置，范围：1～16
   * @param  String 要显示的字符串，范围：ASCII可见字符
   * @retval 无
   */
@@ -168,10 +167,10 @@ uint32_t OLED_Pow(uint32_t X, uint32_t Y)
 
 /**
   * @brief  OLED显示数字（十进制，正数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：0~4294967295
-  * @param  Length 要显示数字的长度，范围：1~10
+  * @param  Line 起始行位置，范围：1～4
+  * @param  Column 起始列位置，范围：1～16
+  * @param  Number 要显示的数字，范围：0～4294967295
+  * @param  Length 要显示数字的长度，范围：1～10
   * @retval 无
   */
 void OLED_ShowNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
@@ -185,12 +184,13 @@ void OLED_ShowNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
 
 /**
   * @brief  OLED显示数字（十进制，带符号数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：-2147483648~2147483647
-  * @param  Length 要显示数字的长度，范围：1~10
+  * @param  Line 起始行位置，范围：1～4
+  * @param  Column 起始列位置，范围：1～16
+  * @param  Number 要显示的数字，范围：-2147483648～2147483647
+  * @param  Length 要显示数字的长度，范围：1～10
   * @retval 无
   */
+/**
 void OLED_ShowSignedNum(uint8_t Line, uint8_t Column, int32_t Number, uint8_t Length)
 {
 	uint8_t i;
@@ -210,15 +210,16 @@ void OLED_ShowSignedNum(uint8_t Line, uint8_t Column, int32_t Number, uint8_t Le
 		OLED_ShowChar(Line, Column + i + 1, Number1 / OLED_Pow(10, Length - i - 1) % 10 + '0');
 	}
 }
-
+**/
 /**
   * @brief  OLED显示数字（十六进制，正数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：0~0xFFFFFFFF
-  * @param  Length 要显示数字的长度，范围：1~8
+  * @param  Line 起始行位置，范围：1～4
+  * @param  Column 起始列位置，范围：1～16
+  * @param  Number 要显示的数字，范围：0～0xFFFFFFFF
+  * @param  Length 要显示数字的长度，范围：1～8
   * @retval 无
   */
+	/**
 void OLED_ShowHexNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
 {
 	uint8_t i, SingleNumber;
@@ -235,15 +236,16 @@ void OLED_ShowHexNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Leng
 		}
 	}
 }
-
+**/
 /**
   * @brief  OLED显示数字（二进制，正数）
-  * @param  Line 起始行位置，范围：1~4
-  * @param  Column 起始列位置，范围：1~16
-  * @param  Number 要显示的数字，范围：0~1111 1111 1111 1111
-  * @param  Length 要显示数字的长度，范围：1~16
+  * @param  Line 起始行位置，范围：1～4
+  * @param  Column 起始列位置，范围：1～16
+  * @param  Number 要显示的数字，范围：0～1111 1111 1111 1111
+  * @param  Length 要显示数字的长度，范围：1～16
   * @retval 无
   */
+/**
 void OLED_ShowBinNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
 {
 	uint8_t i;
@@ -252,17 +254,20 @@ void OLED_ShowBinNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Leng
 		OLED_ShowChar(Line, Column + i, Number / OLED_Pow(2, Length - i - 1) % 2 + '0');
 	}
 }
-
+**/
 
 
 /**
   * @brief  显示BMP图片
   * @param  图片大小：128×64
-  * @param  起始点坐标(x,y)
-  * @param  x的范围0～127
-  * @param  y的范围0～7
+  * @param  x0 起始点x坐标,范围0～127
+  * @param  y0 起始点y坐标,范围0～7
+  * @param  x1 结束点x坐标,范围0～127
+  * @param  y1 结束点y坐标,范围0～7
+  * @param  BMP[] 图片数组数据
   * @retval 无
   */
+
 void OLED_DrawBMP(unsigned char x0, unsigned char y0,unsigned char x1, unsigned char y1,unsigned char BMP[])
 { 	
  unsigned int j=0;
@@ -290,9 +295,9 @@ void OLED_Init(void)
 {
 	uint32_t i, j;
 	
-	for (i = 0; i < 1000; i++)			//上电延时
+	for (i = 0; i < 200; i++)			//上电延时(本来的代码上电时间长达50s😡😡,害的我排查半天硬件问题,现在的只要2.5s了)
 	{
-		for (j = 0; j < 1000; j++);
+		for (j = 0; j < 500; j++);
 	}
 
 	OLED_WriteCommand(0xAE);	//关闭显示

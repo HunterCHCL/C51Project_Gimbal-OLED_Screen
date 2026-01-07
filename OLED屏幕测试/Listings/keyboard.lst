@@ -1,0 +1,140 @@
+C51 COMPILER V9.60.7.0   KEYBOARD                                                          01/07/2026 21:59:19 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEYBOARD
+OBJECT MODULE PLACED IN .\Objects\keyboard.obj
+COMPILER INVOKED BY: D:\RM Main softwares\Keil5c51\C51\BIN\C51.EXE keyboard.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEN
+                    -D PRINT(.\Listings\keyboard.lst) TABS(2) OBJECT(.\Objects\keyboard.obj)
+
+line level    source
+
+   1          #include "delay.h"
+   2          #include <STC89C5xRC.H>
+   3          
+   4          
+   5          int scankey()
+   6          {
+   7   1          P1=0xFF;
+   8   1          P13=0;
+   9   1          if(P14==0){delay(20);while(P14==0);delay(20);return 13;}
+  10   1          if(P15==0){delay(20);while(P15==0);delay(20);return 9;}
+  11   1          if(P16==0){delay(20);while(P16==0);delay(20);return 5;}
+  12   1          if(P17==0){delay(20);while(P17==0);delay(20);return 1;}
+  13   1          P13=1;
+  14   1          P12=0;
+  15   1          if(P14==0){delay(20);while(P14==0);delay(20);return 14;}
+  16   1          if(P15==0){delay(20);while(P15==0);delay(20);return 10;}
+  17   1          if(P16==0){delay(20);while(P16==0);delay(20);return 6;}
+  18   1          if(P17==0){delay(20);while(P17==0);delay(20);return 2;}
+  19   1          P12=1;
+  20   1          P11=0;
+  21   1          if(P14==0){delay(20);while(P14==0);delay(20);return 15;}
+  22   1          if(P15==0){delay(20);while(P15==0);delay(20);return 11;}
+  23   1          if(P16==0){delay(20);while(P16==0);delay(20);return 7;}
+  24   1          if(P17==0){delay(20);while(P17==0);delay(20);return 3;}
+  25   1          P11=1;
+  26   1          P10=0;
+  27   1          if(P14==0){delay(20);while(P14==0);delay(20);return 16;}
+  28   1          if(P15==0){delay(20);while(P15==0);delay(20);return 12;}
+  29   1          if(P16==0){delay(20);while(P16==0);delay(20);return 8;}
+  30   1          if(P17==0){delay(20);while(P17==0);delay(20);return 4;}
+  31   1          return 0;
+  32   1      }
+  33          int scanKeyPress()
+  34          {
+  35   1        P1=0xFF;
+  36   1          P13=0;
+  37   1          if(P14==0){delay(20);return 13;}
+  38   1          if(P15==0){delay(20);return 9;}
+  39   1          if(P16==0){delay(20);return 5;}
+  40   1          if(P17==0){delay(20);return 1;}
+  41   1          P13=1;
+  42   1          P12=0;
+  43   1          if(P14==0){delay(20);return 14;}
+  44   1          if(P15==0){delay(20);return 10;}
+  45   1          if(P16==0){delay(20);return 6;}
+  46   1          if(P17==0){delay(20);return 2;}
+  47   1          P12=1;
+  48   1          P11=0;
+  49   1          if(P14==0){delay(20);return 15;}
+  50   1          if(P15==0){delay(20);return 11;}
+  51   1          if(P16==0){delay(20);return 7;}
+  52   1          if(P17==0){delay(20);return 3;}
+  53   1          P11=1;
+  54   1          P10=0;
+C51 COMPILER V9.60.7.0   KEYBOARD                                                          01/07/2026 21:59:19 PAGE 2   
+
+  55   1          if(P14==0){delay(20);return 16;}
+  56   1          if(P15==0){delay(20);return 12;}
+  57   1          if(P16==0){delay(20);return 8;}
+  58   1          if(P17==0){delay(20);return 4;}
+  59   1          return 0;
+  60   1      }
+  61          int scanKeyRelease(unsigned int prev)
+  62          {
+  63   1        unsigned int line;
+  64   1        P1=0xFF;
+  65   1        switch(prev){
+  66   2          case 1:P13=0;line=7;break;
+  67   2          case 2:P12=0;line=7;break;
+  68   2          case 3:P11=0;line=7;break;
+  69   2          case 4:P10=0;line=7;break;
+  70   2          case 5:P13=0;line=6;break;
+  71   2          case 6:P12=0;line=6;break;
+  72   2          case 7:P11=0;line=6;break;
+  73   2          case 8:P10=0;line=6;break;
+  74   2          case 9:P13=0;line=5;break;
+  75   2          case 10:P12=0;line=5;break;
+  76   2          case 11:P11=0;line=5;break;
+  77   2          case 12:P10=0;line=5;break;
+  78   2          case 13:P13=0;line=4;break;
+  79   2          case 14:P12=0;line=4;break;
+  80   2          case 15:P11=0;line=4;break;
+  81   2          case 16:P10=0;line=4;break;
+  82   2        }
+  83   1        if(line==4&&P14==0){return 1;}
+  84   1        if(line==5&&P15==0){return 1;}
+  85   1        if(line==6&&P16==0){return 1;}
+  86   1        if(line==7&&P17==0){return 1;}
+  87   1        delay(20);
+  88   1        return 0;
+  89   1      }
+  90          /**
+  91          //这段放在主循环外,keyDown用来标记按键状态,key用来存储按键值
+  92          unsigned int keyDown=0;
+  93          unsigned int key=0;
+  94          **/
+  95          
+  96          /**
+  97          //这段放在主循环里
+  98          if (keyDown == 0)
+  99          {
+ 100            key = scanKeyPress();
+ 101            keyDown = key;
+ 102          }
+ 103          else
+ 104          {
+ 105            if (scanKeyRelease(keyDown) == 0)
+ 106            {
+ 107              keyDown = 0;
+ 108              LCD_clear();
+ 109            }
+ 110            key = 0;//放if外面，在按键未释放时清空key值防止重复记录
+ 111          }
+ 112          **/
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    914    ----
+C51 COMPILER V9.60.7.0   KEYBOARD                                                          01/07/2026 21:59:19 PAGE 3   
+
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
