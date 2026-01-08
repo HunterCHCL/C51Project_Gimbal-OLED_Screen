@@ -1,0 +1,95 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              01/08/2026 16:52:03 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\RM Main softwares\Keil5c51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <STC89C5xRC.H>
+   2          #include "delay.h"
+   3          #include "PWM.h"
+   4          #include "UART.h"
+   5          
+   6          sbit servo1=P2^1;//SG90接收20ms周期的脉冲，占空比从2.5%(1/40)到12.5%(1/8)线性对应0°到18
+             -0°，每增加2.5%转45°,增加1/1800增加1°
+   7          unsigned int servo1_Angle=0; //5代表0°，每增加45°增加5(即占空比增加2.5%),允许值从5到2
+             -5
+   8          unsigned char buf[5]={0};
+   9          unsigned int bufCounter=0,Counter=0;
+  10          
+  11          void Timer_Routine() interrupt 1
+  12          {
+  13   1        TL0 = (65536 - 92) % 256;   //设置定时初值
+  14   1        TH0 = (65536 - 92) / 256;
+  15   1        Counter++;
+  16   1        Counter %= 200; //重置counter,现在的值是200,即20ms
+  17   1      
+  18   1        if(Counter < (servo1_Angle/12)+5)
+  19   1        {
+  20   2          servo1 = 1;
+  21   2        }
+  22   1        else
+  23   1        {
+  24   2          servo1 = 0;
+  25   2        }
+  26   1      }
+  27          void adjustDutyCycle()
+  28          {
+  29   1        unsigned int i;
+  30   1        unsigned int dat=0;
+  31   1        for(i=1;buf[i]!='E';i++)
+  32   1        {
+  33   2          dat*=10;
+  34   2          dat+=buf[i]-'0';
+  35   2        }
+  36   1        if(dat<=180&&dat>=0)
+  37   1        {
+  38   2          servo1_Angle=dat;
+  39   2        }
+  40   1      }
+  41          void UART_Routine() interrupt 4
+  42          {
+  43   1        if(RI == 1)//检测是否是接收数据中断
+  44   1        {
+  45   2          if(SBUF=='S'){bufCounter=0;}
+  46   2          buf[bufCounter]=SBUF;
+  47   2          bufCounter++;
+  48   2          if(SBUF=='E'){adjustDutyCycle();UART_SendStr(buf);}
+  49   2          //UART_SendByte(SBUF);
+  50   2          RI = 0;//软件置0
+  51   2        }
+  52   1        
+C51 COMPILER V9.60.7.0   MAIN                                                              01/08/2026 16:52:03 PAGE 2   
+
+  53   1      }
+  54          
+  55          void main()
+  56          {
+  57   1        UART_Init();
+  58   1        PWM_Init();
+  59   1        while(1)
+  60   1        {
+  61   2          UART_SendByte(servo1_Angle/100+'0');
+  62   2          UART_SendByte((servo1_Angle%100)/10+'0');
+  63   2          UART_SendByte(servo1_Angle%10+'0');
+  64   2          //UART_SendStr(buf);
+  65   2          delay(500);
+  66   2        }
+  67   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    347    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     11    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
