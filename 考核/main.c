@@ -28,7 +28,42 @@ void adjustAngle(unsigned int TGTAngle,unsigned int *currentAngle,unsigned int d
 		}
 	}
 }
-void adjustDutyCycle()
+void drawLine(unsigned int len)//画直线
+{
+	if(len==0){return;}
+	adjustAngle(90,&servoH_Angle,500);
+	adjustAngle(90-len/2,&servoH_Angle,500);
+	adjustAngle(90+len/2,&servoH_Angle,500);
+	adjustAngle(90,&servoH_Angle,500);
+}
+/**
+void drawTiltedLine(unsigned int ang,unsigned int *H,unsigned int *V,unsigned int del,unsigned char v)//画45度线
+{
+	if(ang < *H)
+	{
+		while(*H - ang >= 12)
+		{
+			*H -= 12;
+			if(v=='u')
+			{*V += 12;}
+			else{*V -= 12;}
+			delay(del);
+		}
+	}
+	if(ang > *H)
+	{
+		while(ang - *H >= 12)
+		{
+			*H += 12;
+			if(v=='u')
+			{*V += 12;}
+			else{*V -= 12;}
+			delay(del);
+		}
+	}
+}
+
+void adjustDutyCycle()//调整电机角度
 {
 	unsigned int i,dat=0;
 	for(i=2;buf[i]!='V';i++)
@@ -38,7 +73,7 @@ void adjustDutyCycle()
 	}
 	if(dat>=0&&dat<=180)
 	{
-		adjustAngle(dat,&servoH_Angle,500);
+		adjustAngleUART(dat,&servoH_Angle,500);
 	}
 	dat=0;
 	while(buf[i]!='E')
@@ -49,8 +84,23 @@ void adjustDutyCycle()
 	}
 	if(dat>=0&&dat<=180)
 	{
-		adjustAngle(dat,&servoV_Angle,500);
+		adjustAngleUART(dat,&servoV_Angle,500);
 	}
+}
+**/
+unsigned int dataProcess()
+{
+	unsigned int i,dat=0;
+	for(i=2;buf[i]!='E';i++)
+	{
+		dat*=10;
+		dat+=buf[i]-'0';
+	}
+	if(dat<=180&&dat>=0)
+	{
+		return dat;
+	}
+	return 0;
 }
 void UART_Routine() interrupt 4
 {
@@ -62,7 +112,7 @@ void UART_Routine() interrupt 4
 		bufCounter++;
 		if(SBUF=='E')
 		{
-			if(menuIndex==2){adjustDutyCycle();}
+			if(menuIndex==1){drawLine(dataProcess());}
 			UART_SendStr(buf);
 		}
 		UART_SendByte(SBUF);
@@ -77,48 +127,84 @@ void Timer_Routine() interrupt 1
 	Counter++;
 	Counter %= 200; //重置counter,现在的值是200,即20ms
 
-	if(Counter < (servoH_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟说明书不一样
+	if(Counter < (servoH_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度
 	{servoMotorH = 1;}
 	else
 	{servoMotorH = 0;}
-	if(Counter < (servoV_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟说明书不一样，要除以12
+	if(Counter < (servoV_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，要除以12
 	{servoMotorV = 1;}
 	else
 	{servoMotorV = 0;}
 }
+/**
 void drawTri()
 {
-	
+	adjustAngle(90,&servoH_Angle,500);
+	adjustAngle(110,&servoV_Angle,500);
+	adjustAngle(70,&servoH_Angle,500);
+	drawTiltedLine(90,&servoH_Angle,&servoV_Angle,500,'u');
+	drawTiltedLine(70,&servoH_Angle,&servoV_Angle,500,'d');
+	adjustAngle(90,&servoH_Angle,500);
 }
 void drawTriWLen()
 {
-	
+	adjustAngle(90,&servoH_Angle,500);
+	adjustAngle(45,&servoV_Angle,500);
+	adjustAngle(45,&servoH_Angle,500);
+	drawTiltedLine(90,&servoH_Angle,&servoV_Angle,500,'u');
+	drawTiltedLine(135,&servoH_Angle,&servoV_Angle,500,'d');
+	adjustAngle(90,&servoH_Angle,500);
 }
-void GUI(unsigned int key)//UI选择
+**/
+void GUILogic(unsigned int key)//UI逻辑
 {
-    OLED_Clear();
-    if(menuIndex==0)
+    if(menuIndex==0)//初始界面
     {
-			if(key==2){menuIndex=1;}
-			if(key==1){menuIndex=2;}
-        OLED_ShowString(0,0,"Choose Mode");
-			OLED_ShowString(1,0,"1.UART mode");
-			OLED_ShowString(2,0,"2.AUTO mode");
+			if(key==2){menuIndex=2;return;}
+			if(key==1){menuIndex=1;return;}
     }
 		if(menuIndex==1)
 		{
-			OLED_ShowString(0,0,"1.draw Tri");
-			OLED_ShowString(1,0,"2.draw Tri");
-			OLED_ShowString(2,0,"/w length");
-			if(key==2){drawTri();}
-			if(key==1){drawTriWLen();}
-			if(key==11){menuIndex=0;}
+			if(key==11){menuIndex=0;return;}
 		}
 		if(menuIndex==2)
 		{
-			OLED_ShowString(0,0,"UART control");
-			OLED_ShowString(1,0,"mode");
-			if(key==11){menuIndex=0;}
+			if(key==2)
+			{
+				if(servoH_Angle-45>=0)
+					{servoH_Angle-=45;}
+				return;
+			}
+			if(key==1)
+			{
+				if(servoH_Angle+45>=0)
+					{servoH_Angle+=45;}
+				return;
+			}
+			if(key==11){menuIndex=0;return;}	
+		}
+		
+}
+void drawGUI()//显示UI
+{
+    OLED_Clear();
+    if(menuIndex==0)//初始界面
+    {
+			OLED_ShowString(1,1,"Modes:");
+			OLED_ShowString(2,1,"1.draw Line");
+			OLED_ShowString(3,1,"2.Manual Angle");
+    }
+		if(menuIndex==1)//UART控制画线
+		{
+			OLED_ShowString(1,1,"UART");
+			OLED_ShowString(2,1,"Controlling");
+		}
+		if(menuIndex==2)//按键控制舵机角度
+		{
+			OLED_ShowString(1,1,"Angle:");
+			OLED_ShowNum(1,7,servoH_Angle,3);
+			OLED_ShowString(2,1,"1.add 45°");
+			OLED_ShowString(3,1,"2.subtract 45°");
 		}
 		
 }
@@ -128,10 +214,9 @@ void main()
     unsigned int key = 0;
     unsigned int mode=1;//0代表UART控制舵机，1代表自动云台
     OLED_Init();
-    OLED_Clear();
 	PWM_Init();
 	UART_Init();
-	GUI(0);
+	drawGUI();
     while (1)
     {
         if (keyDown == 0)
@@ -140,7 +225,8 @@ void main()
             keyDown = key;
             if (key != 0)
             {
-                GUI(key);
+                GUILogic(key);
+								drawGUI();
             }
         }
         else

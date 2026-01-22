@@ -10,12 +10,12 @@ unsigned int bufCounter=0,Counter=0;
 
 void Timer_Routine() interrupt 1
 {
-	TL0 = (65536 - 23) % 256;		//设置定时初值
-	TH0 = (65536 - 23) / 256;
+	TL0 = (65536 - 92) % 256;		//设置定时初值
+	TH0 = (65536 - 92) / 256;
 	Counter++;
-	Counter %= 800; //重置counter,现在的值是400*50us,即20ms
+	Counter %= 200; //重置counter,现在的值是400*50us,即20ms
 
-	if(Counter < (servo1_Angle/3)+20)//神秘舵机从0.5ms到2ms转180度，跟搜到的不一样
+	if(Counter < (servo1_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟搜到的不一样
 	{
 		servo1 = 1;
 	}

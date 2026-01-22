@@ -1,6 +1,7 @@
 ".\Objects\delay.obj",
 ".\Objects\main.obj",
 ".\Objects\OLED.obj",
-".\Objects\keyboard.obj" 
+".\Objects\keyboard.obj",
+".\Objects\PWM.obj" 
 TO ".\Objects\prj" 
 PRINT(".\Listings\prj.m51") RAMSIZE(256) 

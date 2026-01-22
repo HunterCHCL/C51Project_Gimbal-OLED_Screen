@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              01/15/2026 16:32:39 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 14:51:05 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -21,12 +21,12 @@ line level    source
   10          
   11          void Timer_Routine() interrupt 1
   12          {
-  13   1        TL0 = (65536 - 23) % 256;   //设置定时初值
-  14   1        TH0 = (65536 - 23) / 256;
+  13   1        TL0 = (65536 - 92) % 256;   //设置定时初值
+  14   1        TH0 = (65536 - 92) / 256;
   15   1        Counter++;
-  16   1        Counter %= 800; //重置counter,现在的值是400*50us,即20ms
+  16   1        Counter %= 200; //重置counter,现在的值是400*50us,即20ms
   17   1      
-  18   1        if(Counter < (servo1_Angle/3)+20)//神秘舵机从0.5ms到2ms转180度，跟搜到的不一样
+  18   1        if(Counter < (servo1_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟搜到的不一样
   19   1        {
   20   2          servo1 = 1;
   21   2        }
@@ -62,7 +62,7 @@ line level    source
   51   1        {
   52   2          dat*=10;
   53   2          dat+=buf[i]-'0';
-C51 COMPILER V9.60.7.0   MAIN                                                              01/15/2026 16:32:39 PAGE 2   
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 14:51:05 PAGE 2   
 
   54   2        }
   55   1        if(dat<=180&&dat>=0)

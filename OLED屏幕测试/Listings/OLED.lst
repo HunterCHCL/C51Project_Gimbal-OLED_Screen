@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 12:28:59 PAGE 1   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:23:33 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE OLED
@@ -62,7 +62,7 @@ line level    source
   52   1        OLED_W_SCL(0);
   53   1      }
   54          
-C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 12:28:59 PAGE 2   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:23:33 PAGE 2   
 
   55          /**
   56            * @brief  OLED写命令
@@ -126,7 +126,7 @@ line level    source
  114          /**
  115            * @brief  OLED显示一个字符
  116            * @param  Line 行位置，范围：1～4
-C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 12:28:59 PAGE 3   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:23:33 PAGE 3   
 
  117            * @param  Column 列位置，范围：1～16
  118            * @param  Char 要显示的一个字符，范围：ASCII可见字符
@@ -190,7 +190,7 @@ line level    source
  176          void OLED_ShowNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
  177          {
  178   1        uint8_t i;
-C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 12:28:59 PAGE 4   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:23:33 PAGE 4   
 
  179   1        for (i = 0; i < Length; i++)              
  180   1        {
@@ -254,7 +254,7 @@ line level    source
  238          }
  239          **/
  240          /**
-C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 12:28:59 PAGE 5   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:23:33 PAGE 5   
 
  241            * @brief  OLED显示数字（二进制，正数）
  242            * @param  Line 起始行位置，范围：1～4
@@ -318,7 +318,7 @@ line level    source
              -�天硬件问题,现在的只要2.5s了)
  299   1        {
  300   2          for (j = 0; j < 500; j++);
-C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 12:28:59 PAGE 6   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:23:33 PAGE 6   
 
  301   2        }
  302   1      

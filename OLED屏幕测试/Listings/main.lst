@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 12:34:02 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 16:35:26 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -13,120 +13,128 @@ line level    source
    3          #include "OLED_Font.h"
    4          #include "keyboard.h"
    5          #include "delay.h"
-   6          unsigned int menuIndex=0
-   7          void GUI(unsigned int key)//UI选择
-*** ERROR C141 IN LINE 7 OF main.c: syntax error near 'void', expected ';'
-   8          {
-*** ERROR C141 IN LINE 8 OF main.c: syntax error near '{', expected ';'
-   9            if(key!=1&&key!=2&&key!=11){return;}
-*** ERROR C231 IN LINE 9 OF main.c: 'key': redefinition
-  10              OLED_Clear();
-*** ERROR C231 IN LINE 10 OF main.c: 'OLED_Clear': redefinition
-  11              if(menuIndex==0)//初始界面
-*** ERROR C141 IN LINE 11 OF main.c: syntax error near 'if', expected 'hdata'
-*** ERROR C141 IN LINE 11 OF main.c: syntax error near '==', expected ')'
-  12              {
-  13                if(key==2){menuIndex=1;}
-*** ERROR C141 IN LINE 13 OF main.c: syntax error near '==', expected ')'
-*** ERROR C279 IN LINE 13 OF main.c: 'menuIndex': multiple initialization
-*** ERROR C231 IN LINE 13 OF main.c: 'menuIndex': redefinition
-*** ERROR C141 IN LINE 13 OF main.c: syntax error near '}', expected 'hdata'
-  14                if(key==1){menuIndex=2;}
-*** ERROR C141 IN LINE 14 OF main.c: syntax error near '==', expected ')'
-*** ERROR C279 IN LINE 14 OF main.c: 'menuIndex': multiple initialization
-*** ERROR C141 IN LINE 14 OF main.c: syntax error near '}', expected 'hdata'
-  15                  OLED_ShowString(0,0,"Choose Mode");
-*** ERROR C141 IN LINE 15 OF main.c: syntax error near '0', expected 'bit'
-*** ERROR C231 IN LINE 15 OF main.c: '_OLED_ShowString': redefinition
-  16                OLED_ShowString(1,0,"1.UART mode");
-*** ERROR C141 IN LINE 16 OF main.c: syntax error near '1', expected 'bit'
-*** ERROR C231 IN LINE 16 OF main.c: '_OLED_ShowString': redefinition
-  17                OLED_ShowString(2,0,"2.AUTO mode");
-*** ERROR C141 IN LINE 17 OF main.c: syntax error near '2', expected 'bit'
-*** ERROR C231 IN LINE 17 OF main.c: '_OLED_ShowString': redefinition
-  18              }
-*** ERROR C141 IN LINE 18 OF main.c: syntax error near '}', expected 'hdata'
-  19              if(menuIndex==1)
-*** ERROR C141 IN LINE 19 OF main.c: syntax error near '==', expected ')'
-  20              {
-  21                OLED_ShowString(0,0,"1.draw Tri");
-*** ERROR C141 IN LINE 21 OF main.c: syntax error near '0', expected 'bit'
-*** ERROR C231 IN LINE 21 OF main.c: '_OLED_ShowString': redefinition
-  22                OLED_ShowString(1,0,"2.draw Tri");
-*** ERROR C141 IN LINE 22 OF main.c: syntax error near '1', expected 'bit'
-*** ERROR C231 IN LINE 22 OF main.c: '_OLED_ShowString': redefinition
-  23                OLED_ShowString(2,0,"/w length");
-*** ERROR C141 IN LINE 23 OF main.c: syntax error near '2', expected 'bit'
-*** ERROR C231 IN LINE 23 OF main.c: '_OLED_ShowString': redefinition
-  24                if(key==2){drawTri();}
-*** ERROR C141 IN LINE 24 OF main.c: syntax error near 'if', expected 'hdata'
-*** ERROR C141 IN LINE 24 OF main.c: syntax error near '==', expected ')'
-*** ERROR C141 IN LINE 24 OF main.c: syntax error near '}', expected 'hdata'
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 12:34:02 PAGE 2   
-
-  25                if(key==1){drawTriWLen();}
-*** ERROR C141 IN LINE 25 OF main.c: syntax error near '==', expected ')'
-*** ERROR C141 IN LINE 25 OF main.c: syntax error near '}', expected 'hdata'
-  26                if(key==11){menuIndex=0;}
-*** ERROR C141 IN LINE 26 OF main.c: syntax error near '==', expected ')'
-*** ERROR C279 IN LINE 26 OF main.c: 'menuIndex': multiple initialization
-*** ERROR C141 IN LINE 26 OF main.c: syntax error near '}', expected 'hdata'
-  27              }
-  28              if(menuIndex==2)
-*** ERROR C141 IN LINE 28 OF main.c: syntax error near '==', expected ')'
-  29              {
-  30                OLED_ShowString(0,0,"UART control");
-*** ERROR C141 IN LINE 30 OF main.c: syntax error near '0', expected 'bit'
-*** ERROR C231 IN LINE 30 OF main.c: '_OLED_ShowString': redefinition
-  31                OLED_ShowString(1,0,"mode");
-*** ERROR C141 IN LINE 31 OF main.c: syntax error near '1', expected 'bit'
-*** ERROR C231 IN LINE 31 OF main.c: '_OLED_ShowString': redefinition
-  32                if(key==11){menuIndex=0;}
-*** ERROR C141 IN LINE 32 OF main.c: syntax error near 'if', expected 'hdata'
-*** ERROR C141 IN LINE 32 OF main.c: syntax error near '==', expected ')'
-*** ERROR C279 IN LINE 32 OF main.c: 'menuIndex': multiple initialization
-*** ERROR C141 IN LINE 32 OF main.c: syntax error near '}', expected 'hdata'
-  33              }
-  34              
-  35          }
-  36          void main()
-  37          {
-  38   1          unsigned int keyDown = 0;
-  39   1          unsigned int key = 0;
-  40   1          OLED_Init();
-  41   1          OLED_Clear();
-  42   1          delay(1000);
-  43   1          OLED_ShowChar(1, 1, 't');
-  44   1          P21 = 0;
-  45   1          OLED_ShowString(1, 2, "Test");
-  46   1          OLED_ShowNum(2, 1, 123456, 6);
-  47   1        GUI(3);
-  48   1          while (1)
+   6          #include "PWM.h"
+   7          sbit servo1=P2^1;
+   8          unsigned int Counter,servo1_Angle=90;
+   9          
+  10          void Timer_Routine() interrupt 1
+  11          {
+  12   1        TL0 = (65536 - 92) % 256;   //设置定时初值
+  13   1        TH0 = (65536 - 92) / 256;
+  14   1        Counter++;
+  15   1        Counter %= 200; //重置counter,现在的值是200,即20ms
+  16   1      
+  17   1        if(Counter < (servo1_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟说明书不一样
+  18   1        {
+  19   2          servo1 = 1;
+  20   2        }
+  21   1        else
+  22   1        {
+  23   2          servo1 = 0;
+  24   2        }
+  25   1      }
+  26          unsigned int menuIndex=0;
+  27          void drawTri()
+  28          {
+  29   1        
+  30   1      }
+  31          void drawTriWLen()
+  32          {
+  33   1        
+  34   1      }
+  35          void GUILogic(unsigned int key)//UI逻辑
+  36          {
+  37   1          if(menuIndex==0)//初始界面
+  38   1          {
+  39   2            if(key==2){menuIndex=1;return;}
+  40   2            if(key==1){menuIndex=2;return;}
+  41   2          }
+  42   1          if(menuIndex==1)
+  43   1          {
+  44   2            if(key==2){drawTri();return;}
+  45   2            if(key==1){drawTriWLen();return;}
+  46   2            if(key==11){menuIndex=0;return;}
+  47   2          }
+  48   1          if(menuIndex==2)
   49   1          {
-  50   2              if (keyDown == 0)
-  51   2              {
-  52   3                  key = scanKeyPress();
-  53   3                  keyDown = key;
-  54   3                /**
-  55   3                  if (key != 0)
-  56   3                  {
-  57   3                      OLED_ShowNum(3, 1, key, 2);
-  58   3                  }
-  59   3                **/
-  60   3                GUI(key);
-  61   3              }
-  62   2              else
-  63   2              {
-  64   3                  if (scanKeyRelease(keyDown) == 0)
-  65   3                  {
-  66   4                      keyDown = 0;
-  67   4                      //OLED_clear();
-  68   4                      key = 0;
-  69   4                  }
-  70   3              }
-  71   2          }
-  72   1      }
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 12:34:02 PAGE 3   
+  50   2            if(key==11){menuIndex=0;return;}  
+  51   2          }
+  52   1          
+  53   1      }
+  54          void drawGUI()//显示UI
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 16:35:26 PAGE 2   
+
+  55          {
+  56   1          EA=0;
+  57   1          OLED_Clear();
+  58   1          if(menuIndex==0)//初始界面
+  59   1          {
+  60   2            OLED_ShowString(1,1,"Modes:");
+  61   2            OLED_ShowString(2,1,"1.UART");
+  62   2            OLED_ShowString(3,1,"2.AUTO");
+  63   2          }
+  64   1          if(menuIndex==1)
+  65   1          {
+  66   2            OLED_ShowString(1,1,"1.Tri1");
+  67   2            OLED_ShowString(2,1,"2.Tri2");
+  68   2          }
+  69   1          if(menuIndex==2)
+  70   1          {
+  71   2            OLED_ShowString(1,1,"UART");
+  72   2            OLED_ShowString(2,1,"mode");
+  73   2          }
+  74   1          EA=1;
+  75   1      }
+  76          void main()
+  77          {
+  78   1          unsigned int keyDown = 0;
+  79   1          unsigned int key = 0;
+  80   1          OLED_Init();
+  81   1          PWM_Init();
+  82   1          delay(1000);
+  83   1          OLED_ShowChar(1, 1, 't');
+  84   1          //P21 = 0;
+  85   1          OLED_ShowString(1, 2, "Test");
+  86   1          OLED_ShowNum(2, 1, 123456, 6);
+  87   1          drawGUI();
+  88   1          while (1)
+  89   1          {
+  90   2              if (keyDown == 0)
+  91   2              {
+  92   3                  key = scanKeyPress();
+  93   3                  keyDown = key;
+  94   3                /**
+  95   3                  if (key != 0)
+  96   3                  {
+  97   3                      OLED_ShowNum(3, 1, key, 2);
+  98   3                  }
+  99   3                **/
+ 100   3                if(key!=0){GUILogic(key);drawGUI();}
+ 101   3              }
+ 102   2              else
+ 103   2              {
+ 104   3                  if (scanKeyRelease(keyDown) == 0)
+ 105   3                  {
+ 106   4                      keyDown = 0;
+ 107   4                      //OLED_clear();
+ 108   4                      key = 0;
+ 109   4                  }
+ 110   3              }
+ 111   2          }
+ 112   1      }
 
 
-C51 COMPILATION COMPLETE.  0 WARNING(S),  44 ERROR(S)
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    425    ----
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 16:35:26 PAGE 3   
+
+   CONSTANT SIZE    =   1570    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      6       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
