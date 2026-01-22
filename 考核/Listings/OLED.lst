@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   OLED                                                              01/15/2026 14:43:15 PAGE 1   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:39:58 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE OLED
@@ -62,7 +62,7 @@ line level    source
   52   1        OLED_W_SCL(0);
   53   1      }
   54          
-C51 COMPILER V9.60.7.0   OLED                                                              01/15/2026 14:43:15 PAGE 2   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:39:58 PAGE 2   
 
   55          /**
   56            * @brief  OLED写命令
@@ -126,7 +126,7 @@ line level    source
  114          /**
  115            * @brief  OLED显示一个字符
  116            * @param  Line 行位置，范围：1～4
-C51 COMPILER V9.60.7.0   OLED                                                              01/15/2026 14:43:15 PAGE 3   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:39:58 PAGE 3   
 
  117            * @param  Column 列位置，范围：1～16
  118            * @param  Char 要显示的一个字符，范围：ASCII可见字符
@@ -190,7 +190,7 @@ line level    source
  176          void OLED_ShowNum(uint8_t Line, uint8_t Column, uint32_t Number, uint8_t Length)
  177          {
  178   1        uint8_t i;
-C51 COMPILER V9.60.7.0   OLED                                                              01/15/2026 14:43:15 PAGE 4   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:39:58 PAGE 4   
 
  179   1        for (i = 0; i < Length; i++)              
  180   1        {
@@ -254,7 +254,7 @@ line level    source
  238          }
  239          **/
  240          /**
-C51 COMPILER V9.60.7.0   OLED                                                              01/15/2026 14:43:15 PAGE 5   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:39:58 PAGE 5   
 
  241            * @brief  OLED显示数字（二进制，正数）
  242            * @param  Line 起始行位置，范围：1～4
@@ -285,25 +285,25 @@ line level    source
  267            * @param  BMP[] 图片数组数据
  268            * @retval 无
  269            */
- 270          
+ 270          /**
  271          void OLED_DrawBMP(unsigned char x0, unsigned char y0,unsigned char x1, unsigned char y1,unsigned char BMP[
              -])
  272          {   
- 273   1       unsigned int j=0;
- 274   1       unsigned char x,y;
- 275   1        
- 276   1        if(y1%8==0) y=y1/8;      
- 277   1        else y=y1/8+1;
- 278   1        for(y=y0;y<y1;y++)
- 279   1        {
- 280   2          OLED_SetCursor(y,x0);
- 281   2          for(x=x0;x<x1;x++)
- 282   2            {      
- 283   3              OLED_WriteData(BMP[j++]);       
- 284   3            }
- 285   2        }
- 286   1      } 
- 287           
+ 273           unsigned int j=0;
+ 274           unsigned char x,y;
+ 275            
+ 276            if(y1%8==0) y=y1/8;      
+ 277            else y=y1/8+1;
+ 278            for(y=y0;y<y1;y++)
+ 279            {
+ 280              OLED_SetCursor(y,x0);
+ 281              for(x=x0;x<x1;x++)
+ 282                {      
+ 283                  OLED_WriteData(BMP[j++]);       
+ 284                }
+ 285            }
+ 286          } 
+ 287           **/
  288          
  289          /**
  290            * @brief  OLED初始化
@@ -318,7 +318,7 @@ line level    source
              -�天硬件问题,现在的只要2.5s了)
  299   1        {
  300   2          for (j = 0; j < 500; j++);
-C51 COMPILER V9.60.7.0   OLED                                                              01/15/2026 14:43:15 PAGE 6   
+C51 COMPILER V9.60.7.0   OLED                                                              01/22/2026 16:39:58 PAGE 6   
 
  301   2        }
  302   1      
@@ -365,11 +365,11 @@ line level    source
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    809    ----
+   CODE SIZE        =    710    ----
    CONSTANT SIZE    =   1520    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =   ----      47
+   DATA SIZE        =   ----      36
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

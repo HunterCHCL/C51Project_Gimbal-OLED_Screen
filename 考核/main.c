@@ -5,36 +5,41 @@
 #include "Keyboard.h"
 #include "UART.h"
 #include "OLED_Font.h"
-unsigned int menuIndex=0,servoH_Angle=90,servoV_Angle=90,bufCounter=0,Counter=0;
-unsigned char buf[10]={0};
-sbit servoMotorH= P2^2;
-sbit servoMotorV= P2^1;
-void adjustAngle(unsigned int TGTAngle,unsigned int *currentAngle,unsigned int del)//缓慢转动云台
+#define addDeg 45
+unsigned int menuIndex = 0, servoHAngle = 90, bufCounter = 0, Counter = 0;
+//unsigned int  servoVAngle = 90;
+unsigned char buf[10] = {0};
+sbit servoMotorH = P2 ^ 1;
+//sbit servoMotorV = P2 ^ 2;
+void adjustAngle(unsigned int TGTAngle, unsigned int *currentAngle, unsigned int del) // 缓慢转动云台
 {
-	if(TGTAngle < *currentAngle)
+	if (TGTAngle < *currentAngle)
 	{
-		while(*currentAngle - TGTAngle >= 12)
+		while (*currentAngle - TGTAngle >= 12)
 		{
 			*currentAngle -= 12;
 			delay(del);
 		}
 	}
-	if(TGTAngle > *currentAngle)
+	if (TGTAngle > *currentAngle)
 	{
-		while(TGTAngle - *currentAngle >= 12)
+		while (TGTAngle - *currentAngle >= 12)
 		{
 			*currentAngle += 12;
 			delay(del);
 		}
 	}
 }
-void drawLine(unsigned int len)//画直线
+void drawLine(unsigned int len) // 画直线
 {
-	if(len==0){return;}
-	adjustAngle(90,&servoH_Angle,500);
-	adjustAngle(90-len/2,&servoH_Angle,500);
-	adjustAngle(90+len/2,&servoH_Angle,500);
-	adjustAngle(90,&servoH_Angle,500);
+	if (len == 0)
+	{
+		return;
+	}
+	adjustAngle(90, &servoHAngle, 500);
+	adjustAngle(90 - len / 2, &servoHAngle, 500);
+	adjustAngle(90 + len / 2, &servoHAngle, 500);
+	adjustAngle(90, &servoHAngle, 500);
 }
 /**
 void drawTiltedLine(unsigned int ang,unsigned int *H,unsigned int *V,unsigned int del,unsigned char v)//画45度线
@@ -73,7 +78,7 @@ void adjustDutyCycle()//调整电机角度
 	}
 	if(dat>=0&&dat<=180)
 	{
-		adjustAngleUART(dat,&servoH_Angle,500);
+		adjustAngleUART(dat,&servoHAngle,500);
 	}
 	dat=0;
 	while(buf[i]!='E')
@@ -84,19 +89,20 @@ void adjustDutyCycle()//调整电机角度
 	}
 	if(dat>=0&&dat<=180)
 	{
-		adjustAngleUART(dat,&servoV_Angle,500);
+		adjustAngleUART(dat,&servoVAngle,500);
 	}
 }
 **/
 unsigned int dataProcess()
 {
-	unsigned int i,dat=0;
-	for(i=2;buf[i]!='E';i++)
+	unsigned int i, dat = 0;
+	for (i = 1; buf[i] != 'E'; i++)
 	{
-		dat*=10;
-		dat+=buf[i]-'0';
+		dat *= 10;
+		dat += buf[i] - '0';
 	}
-	if(dat<=180&&dat>=0)
+	UART_SendStr(dat);
+	if (dat <= 180 && dat >= 0)
 	{
 		return dat;
 	}
@@ -104,138 +110,172 @@ unsigned int dataProcess()
 }
 void UART_Routine() interrupt 4
 {
-	if(RI == 1)//检测是否是接收数据中断
+	if (RI == 1) // 检测是否是接收数据中断
 	{
-		//接收数据并写入字符串
-		if(SBUF=='S'){bufCounter=0;}
-		buf[bufCounter]=SBUF;
-		bufCounter++;
-		if(SBUF=='E')
+		// 接收数据并写入字符串
+		if (SBUF == 'S')
 		{
-			if(menuIndex==1){drawLine(dataProcess());}
+			bufCounter = 0;
+		}
+		buf[bufCounter] = SBUF;
+		bufCounter++;
+		if (SBUF == 'E')
+		{
+			if (menuIndex == 1)
+			{
+				drawLine(dataProcess());
+			}
 			UART_SendStr(buf);
 		}
-		UART_SendByte(SBUF);
-		RI = 0;//软件置0
+		RI = 0; // 软件置0
 	}
 }
 
 void Timer_Routine() interrupt 1
 {
-	TL0 = (65536 - 92) % 256;		//设置定时初值
+	TL0 = (65536 - 92) % 256; // 设置定时初值
 	TH0 = (65536 - 92) / 256;
 	Counter++;
-	Counter %= 200; //重置counter,现在的值是200,即20ms
+	Counter %= 200; // 重置counter,现在的值是200,即20ms
 
-	if(Counter < (servoH_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度
-	{servoMotorH = 1;}
+	if (Counter < (servoHAngle / 12) + 5) // 神秘舵机从0.5ms到2ms转180度
+	{
+		servoMotorH = 1;
+	}
 	else
-	{servoMotorH = 0;}
-	if(Counter < (servoV_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，要除以12
-	{servoMotorV = 1;}
+	{
+		servoMotorH = 0;
+	}
+	/**
+	if (Counter < (servoVAngle / 12) + 5) // 神秘舵机从0.5ms到2ms转180度，要除以12
+	{
+		servoMotorV = 1;
+	}
 	else
-	{servoMotorV = 0;}
+	{
+		servoMotorV = 0;
+	}
+	**/
 }
 /**
 void drawTri()
 {
-	adjustAngle(90,&servoH_Angle,500);
-	adjustAngle(110,&servoV_Angle,500);
-	adjustAngle(70,&servoH_Angle,500);
-	drawTiltedLine(90,&servoH_Angle,&servoV_Angle,500,'u');
-	drawTiltedLine(70,&servoH_Angle,&servoV_Angle,500,'d');
-	adjustAngle(90,&servoH_Angle,500);
+	adjustAngle(90,&servoHAngle,500);
+	adjustAngle(110,&servoVAngle,500);
+	adjustAngle(70,&servoHAngle,500);
+	drawTiltedLine(90,&servoHAngle,&servoVAngle,500,'u');
+	drawTiltedLine(70,&servoHAngle,&servoVAngle,500,'d');
+	adjustAngle(90,&servoHAngle,500);
 }
 void drawTriWLen()
 {
-	adjustAngle(90,&servoH_Angle,500);
-	adjustAngle(45,&servoV_Angle,500);
-	adjustAngle(45,&servoH_Angle,500);
-	drawTiltedLine(90,&servoH_Angle,&servoV_Angle,500,'u');
-	drawTiltedLine(135,&servoH_Angle,&servoV_Angle,500,'d');
-	adjustAngle(90,&servoH_Angle,500);
+	adjustAngle(90,&servoHAngle,500);
+	adjustAngle(45,&servoVAngle,500);
+	adjustAngle(45,&servoHAngle,500);
+	drawTiltedLine(90,&servoHAngle,&servoVAngle,500,'u');
+	drawTiltedLine(135,&servoHAngle,&servoVAngle,500,'d');
+	adjustAngle(90,&servoHAngle,500);
 }
 **/
-void GUILogic(unsigned int key)//UI逻辑
+void GUILogic(unsigned int key) // UI逻辑
 {
-    if(menuIndex==0)//初始界面
-    {
-			if(key==2){menuIndex=2;return;}
-			if(key==1){menuIndex=1;return;}
-    }
-		if(menuIndex==1)
+	if (menuIndex == 0) // 初始界面
+	{
+		if (key == 2)
 		{
-			if(key==11){menuIndex=0;return;}
+			menuIndex = 2;
+			return;
 		}
-		if(menuIndex==2)
+		if (key == 1)
 		{
-			if(key==2)
-			{
-				if(servoH_Angle-45>=0)
-					{servoH_Angle-=45;}
-				return;
-			}
-			if(key==1)
-			{
-				if(servoH_Angle+45>=0)
-					{servoH_Angle+=45;}
-				return;
-			}
-			if(key==11){menuIndex=0;return;}	
+			menuIndex = 1;
+			return;
 		}
-		
+	}
+	if (menuIndex == 1)
+	{
+		if (key == 11)
+		{
+			menuIndex = 0;
+			return;
+		}
+	}
+	if (menuIndex == 2)
+	{
+		if (key == 2)
+		{
+			if (servoHAngle - addDeg >= 0&& servoHAngle - addDeg <= 180)
+			{
+				servoHAngle -= addDeg;
+			}
+			return;
+		}
+		if (key == 1)
+		{
+			if (servoHAngle + addDeg <= 180&& servoHAngle + addDeg >= 0)
+			{
+				servoHAngle += addDeg;
+			}
+			return;
+		}
+		if (key == 11)
+		{
+			menuIndex = 0;
+			return;
+		}
+	}
 }
-void drawGUI()//显示UI
+void drawGUI() // 显示UI,画的时候临时禁用中断不然画的非常慢
 {
-    OLED_Clear();
-    if(menuIndex==0)//初始界面
-    {
-			OLED_ShowString(1,1,"Modes:");
-			OLED_ShowString(2,1,"1.draw Line");
-			OLED_ShowString(3,1,"2.Manual Angle");
-    }
-		if(menuIndex==1)//UART控制画线
-		{
-			OLED_ShowString(1,1,"UART");
-			OLED_ShowString(2,1,"Controlling");
-		}
-		if(menuIndex==2)//按键控制舵机角度
-		{
-			OLED_ShowString(1,1,"Angle:");
-			OLED_ShowNum(1,7,servoH_Angle,3);
-			OLED_ShowString(2,1,"1.add 45°");
-			OLED_ShowString(3,1,"2.subtract 45°");
-		}
-		
+	EA = 0;
+	OLED_Clear();
+	if (menuIndex == 0) // 初始界面
+	{
+		OLED_ShowString(1, 1, "  Modes:");
+		OLED_ShowString(2, 1, "1.draw Line");
+		OLED_ShowString(3, 1, "2.Manual Angle");
+	}
+	if (menuIndex == 1) // UART控制画线
+	{
+		OLED_ShowString(1, 1, "   UART");
+		OLED_ShowString(2, 1, "Controlling");
+	}
+	if (menuIndex == 2) // 按键控制舵机角度
+	{
+		OLED_ShowString(1, 1, "Angle:");
+		OLED_ShowNum(1, 7, servoHAngle, 3);
+		OLED_ShowString(2, 1, "1.add 45deg");
+		OLED_ShowString(3, 1, "2.subtract 45deg");
+	}
+	EA = 1;
 }
 void main()
 {
 	unsigned int keyDown = 0;
-    unsigned int key = 0;
-    unsigned int mode=1;//0代表UART控制舵机，1代表自动云台
-    OLED_Init();
+	unsigned int key = 0;
+	OLED_Init();
 	PWM_Init();
 	UART_Init();
 	drawGUI();
-    while (1)
-    {
-        if (keyDown == 0)
-        {
-            key = scanKeyPress();
-            keyDown = key;
-            if (key != 0)
-            {
-                GUILogic(key);
-								drawGUI();
-            }
-        }
-        else
-        {
-            if (scanKeyRelease(keyDown) == 0)
-            {
-                keyDown = 0;
-                key = 0;
-            }
-        }
-    }
+	while (1)
+	{
+		if (keyDown == 0)
+		{
+			key = scanKeyPress();
+			keyDown = key;
+			if (key != 0)
+			{
+				GUILogic(key);
+				drawGUI();
+			}
+		}
+		else
+		{
+			if (scanKeyRelease(keyDown) == 0)
+			{
+				keyDown = 0;
+				key = 0;
+			}
+		}
+	}
 }

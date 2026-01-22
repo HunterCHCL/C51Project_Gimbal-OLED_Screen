@@ -1,7 +1,7 @@
 #include "delay.h"
 #include <STC89C5xRC.H>
 
-
+/**
 int scankey()
 {
 		P1=0xFF;
@@ -30,6 +30,7 @@ int scankey()
 		if(P17==0){delay(20);while(P17==0);delay(20);return 4;}
 		return 0;
 }
+**/
 int scanKeyPress()
 {
 	P1=0xFF;
