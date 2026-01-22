@@ -1,0 +1,8 @@
+".\Objects\delay.obj",
+".\Objects\keyboard.obj",
+".\Objects\OLED.obj",
+".\Objects\PWM.obj",
+".\Objects\UART.obj",
+".\Objects\main.obj" 
+TO ".\Objects\prj" 
+PRINT(".\Listings\prj.m51") RAMSIZE(256) 

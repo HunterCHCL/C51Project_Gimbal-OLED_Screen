@@ -1,0 +1,184 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 12:23:22 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\RM Main softwares\Keil5c51\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <STC89C5xRC.H>
+   2          #include "OLED.h"
+   3          #include "delay.h"
+   4          #include "PWM.h"
+   5          #include "Keyboard.h"
+   6          #include "UART.h"
+   7          #include "OLED_Font.h"
+   8          unsigned int menuIndex=0,servoH_Angle=90,servoV_Angle=90,bufCounter=0,Counter=0;
+   9          unsigned char buf[10]={0};
+  10          sbit servoMotorH= P2^2;
+  11          sbit servoMotorV= P2^1;
+  12          void adjustAngle(unsigned int TGTAngle,unsigned int *currentAngle,unsigned int del)//缓慢转动云台
+  13          {
+  14   1        if(TGTAngle < *currentAngle)
+  15   1        {
+  16   2          while(*currentAngle - TGTAngle >= 12)
+  17   2          {
+  18   3            *currentAngle -= 12;
+  19   3            delay(del);
+  20   3          }
+  21   2        }
+  22   1        if(TGTAngle > *currentAngle)
+  23   1        {
+  24   2          while(TGTAngle - *currentAngle >= 12)
+  25   2          {
+  26   3            *currentAngle += 12;
+  27   3            delay(del);
+  28   3          }
+  29   2        }
+  30   1      }
+  31          void adjustDutyCycle()
+  32          {
+  33   1        unsigned int i,dat=0;
+  34   1        for(i=2;buf[i]!='V';i++)
+  35   1        {
+  36   2          dat*=10;
+  37   2          dat+=buf[i]-'0';
+  38   2        }
+  39   1        if(dat>=0&&dat<=180)
+  40   1        {
+  41   2          adjustAngle(dat,&servoH_Angle,500);
+  42   2        }
+  43   1        dat=0;
+  44   1        while(buf[i]!='E')
+  45   1        {
+  46   2          i++;
+  47   2          dat*=10;
+  48   2          dat+=buf[i]-'0';
+  49   2        }
+  50   1        if(dat>=0&&dat<=180)
+  51   1        {
+  52   2          adjustAngle(dat,&servoV_Angle,500);
+  53   2        }
+  54   1      }
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 12:23:22 PAGE 2   
+
+  55          void UART_Routine() interrupt 4
+  56          {
+  57   1        if(RI == 1)//检测是否是接收数据中断
+  58   1        {
+  59   2          //接收数据并写入字符串
+  60   2          if(SBUF=='S'){bufCounter=0;}
+  61   2          buf[bufCounter]=SBUF;
+  62   2          bufCounter++;
+  63   2          if(SBUF=='E')
+  64   2          {
+  65   3            if(menuIndex==2){adjustDutyCycle();}
+  66   3            UART_SendStr(buf);
+  67   3          }
+  68   2          UART_SendByte(SBUF);
+  69   2          RI = 0;//软件置0
+  70   2        }
+  71   1      }
+  72          
+  73          void Timer_Routine() interrupt 1
+  74          {
+  75   1        TL0 = (65536 - 92) % 256;   //设置定时初值
+  76   1        TH0 = (65536 - 92) / 256;
+  77   1        Counter++;
+  78   1        Counter %= 200; //重置counter,现在的值是200,即20ms
+  79   1      
+  80   1        if(Counter < (servoH_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟说明书不一样
+  81   1        {servoMotorH = 1;}
+  82   1        else
+  83   1        {servoMotorH = 0;}
+  84   1        if(Counter < (servoV_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟说明书不一样，要除�
+             -�12
+  85   1        {servoMotorV = 1;}
+  86   1        else
+  87   1        {servoMotorV = 0;}
+  88   1      }
+  89          void drawTri()
+  90          {
+  91   1        
+  92   1      }
+  93          void drawTriWLen()
+  94          {
+  95   1        
+  96   1      }
+  97          void GUI(unsigned int key)//UI选择
+  98          {
+  99   1          OLED_Clear();
+ 100   1          if(menuIndex==0)
+ 101   1          {
+ 102   2            if(key==2){menuIndex=1;}
+ 103   2            if(key==1){menuIndex=2;}
+ 104   2              OLED_ShowString(0,0,"Choose Mode");
+ 105   2            OLED_ShowString(1,0,"1.UART mode");
+ 106   2            OLED_ShowString(2,0,"2.AUTO mode");
+ 107   2          }
+ 108   1          if(menuIndex==1)
+ 109   1          {
+ 110   2            OLED_ShowString(0,0,"1.draw Tri");
+ 111   2            OLED_ShowString(1,0,"2.draw Tri");
+ 112   2            OLED_ShowString(2,0,"/w length");
+ 113   2            if(key==2){drawTri();}
+ 114   2            if(key==1){drawTriWLen();}
+ 115   2            if(key==11){menuIndex=0;}
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 12:23:22 PAGE 3   
+
+ 116   2          }
+ 117   1          if(menuIndex==2)
+ 118   1          {
+ 119   2            OLED_ShowString(0,0,"UART control");
+ 120   2            OLED_ShowString(1,0,"mode");
+ 121   2            if(key==11){menuIndex=0;}
+ 122   2          }
+ 123   1          
+ 124   1      }
+ 125          void main()
+ 126          {
+ 127   1        unsigned int keyDown = 0;
+ 128   1          unsigned int key = 0;
+ 129   1          unsigned int mode=1;//0代表UART控制舵机，1代表自动云台
+ 130   1          OLED_Init();
+ 131   1          OLED_Clear();
+ 132   1        PWM_Init();
+ 133   1        UART_Init();
+ 134   1        GUI(0);
+ 135   1          while (1)
+ 136   1          {
+ 137   2              if (keyDown == 0)
+ 138   2              {
+ 139   3                  key = scanKeyPress();
+ 140   3                  keyDown = key;
+ 141   3                  if (key != 0)
+ 142   3                  {
+ 143   4                      GUI(key);
+ 144   4                  }
+ 145   3              }
+ 146   2              else
+ 147   2              {
+ 148   3                  if (scanKeyRelease(keyDown) == 0)
+ 149   3                  {
+ 150   4                      keyDown = 0;
+ 151   4                      key = 0;
+ 152   4                  }
+ 153   3              }
+ 154   2          }
+ 155   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    856    ----
+   CONSTANT SIZE    =   1606    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     20      19
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

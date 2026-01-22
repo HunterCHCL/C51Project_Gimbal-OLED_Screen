@@ -24,16 +24,52 @@ Project File Date:  01/07/2026
 <h2>Output:</h2>
 Build target 'Target 1'
 compiling main.c...
-main.c(35): warning C206: 'OLED_clear': missing function-prototype
-linking...
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?_OLED_DRAWBMP?OLED
-*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
-    SEGMENT: ?PR?SCANKEY?KEYBOARD
-Program Size: data=44.0 xdata=0 code=5326
-creating hex file from ".\Objects\prj"...
-".\Objects\prj" - 0 Error(s), 3 Warning(s).
-Build Time Elapsed:  00:00:00
+main.c(7): error C141: syntax error near 'void', expected ';'
+main.c(8): error C141: syntax error near '{', expected ';'
+main.c(9): error C231: 'key': redefinition
+main.c(10): error C231: 'OLED_Clear': redefinition
+main.c(11): error C141: syntax error near 'if', expected 'hdata'
+main.c(11): error C141: syntax error near '==', expected ')'
+main.c(13): error C141: syntax error near '==', expected ')'
+main.c(13): error C279: 'menuIndex': multiple initialization
+main.c(13): error C231: 'menuIndex': redefinition
+main.c(13): error C141: syntax error near '}', expected 'hdata'
+main.c(14): error C141: syntax error near '==', expected ')'
+main.c(14): error C279: 'menuIndex': multiple initialization
+main.c(14): error C141: syntax error near '}', expected 'hdata'
+main.c(15): error C141: syntax error near '0', expected 'bit'
+main.c(15): error C231: '_OLED_ShowString': redefinition
+main.c(16): error C141: syntax error near '1', expected 'bit'
+main.c(16): error C231: '_OLED_ShowString': redefinition
+main.c(17): error C141: syntax error near '2', expected 'bit'
+main.c(17): error C231: '_OLED_ShowString': redefinition
+main.c(18): error C141: syntax error near '}', expected 'hdata'
+main.c(19): error C141: syntax error near '==', expected ')'
+main.c(21): error C141: syntax error near '0', expected 'bit'
+main.c(21): error C231: '_OLED_ShowString': redefinition
+main.c(22): error C141: syntax error near '1', expected 'bit'
+main.c(22): error C231: '_OLED_ShowString': redefinition
+main.c(23): error C141: syntax error near '2', expected 'bit'
+main.c(23): error C231: '_OLED_ShowString': redefinition
+main.c(24): error C141: syntax error near 'if', expected 'hdata'
+main.c(24): error C141: syntax error near '==', expected ')'
+main.c(24): error C141: syntax error near '}', expected 'hdata'
+main.c(25): error C141: syntax error near '==', expected ')'
+main.c(25): error C141: syntax error near '}', expected 'hdata'
+main.c(26): error C141: syntax error near '==', expected ')'
+main.c(26): error C279: 'menuIndex': multiple initialization
+main.c(26): error C141: syntax error near '}', expected 'hdata'
+main.c(28): error C141: syntax error near '==', expected ')'
+main.c(30): error C141: syntax error near '0', expected 'bit'
+main.c(30): error C231: '_OLED_ShowString': redefinition
+main.c(31): error C141: syntax error near '1', expected 'bit'
+main.c(31): error C231: '_OLED_ShowString': redefinition
+main.c(32): error C141: syntax error near 'if', expected 'hdata'
+main.c(32): error C141: syntax error near '==', expected ')'
+main.c(32): error C279: 'menuIndex': multiple initialization
+main.c(32): error C141: syntax error near '}', expected 'hdata'
+Target not created.
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

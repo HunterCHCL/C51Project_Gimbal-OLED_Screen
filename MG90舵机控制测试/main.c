@@ -4,24 +4,43 @@
 #include "UART.h"
 
 sbit servo1=P2^1;//SG90接收20ms周期的脉冲，占空比从2.5%(1/40)到12.5%(1/8)线性对应0°到180°，每增加2.5%转45°,增加1/1800增加1°
-unsigned int servo1_Angle=0; //5代表0°，每增加45°增加5(即占空比增加2.5%),允许值从5到25
+unsigned int servo1_Angle=0;
 unsigned char buf[5]={0};
 unsigned int bufCounter=0,Counter=0;
 
 void Timer_Routine() interrupt 1
 {
-	TL0 = (65536 - 92) % 256;		//设置定时初值
-	TH0 = (65536 - 92) / 256;
+	TL0 = (65536 - 23) % 256;		//设置定时初值
+	TH0 = (65536 - 23) / 256;
 	Counter++;
-	Counter %= 200; //重置counter,现在的值是200,即20ms
+	Counter %= 800; //重置counter,现在的值是400*50us,即20ms
 
-	if(Counter < (servo1_Angle/12)+5)//神秘舵机从0.5ms到2ms转180度，跟说明书不一样
+	if(Counter < (servo1_Angle/3)+20)//神秘舵机从0.5ms到2ms转180度，跟搜到的不一样
 	{
 		servo1 = 1;
 	}
 	else
 	{
 		servo1 = 0;
+	}
+}
+void adjustAngle(unsigned int TGTAngle,unsigned int *currentAngle,unsigned int del)
+{
+	if(TGTAngle < *currentAngle)
+	{
+		while(*currentAngle - TGTAngle >= 3)
+		{
+			*currentAngle -= 3;
+			delay(del);
+		}
+	}
+	if(TGTAngle > *currentAngle)
+	{
+		while(TGTAngle - *currentAngle >= 3)
+		{
+			*currentAngle += 3;
+			delay(del);
+		}
 	}
 }
 void adjustDutyCycle()
@@ -35,7 +54,7 @@ void adjustDutyCycle()
 	}
 	if(dat<=180&&dat>=0)
 	{
-		servo1_Angle=dat;
+		adjustAngle(dat, &servo1_Angle, 83);
 	}
 }
 void UART_Routine() interrupt 4
