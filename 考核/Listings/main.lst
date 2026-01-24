@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 18:59:59 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 20:08:12 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -16,290 +16,334 @@ line level    source
    6          #include "UART.h"
    7          #include "OLED_Font.h"
    8          #define addDeg 45
-   9          unsigned int menuIndex = 0, servoHAngle = 90, bufCounter = 0, Counter = 0;
-  10          //unsigned int  servoVAngle = 90;
-  11          unsigned char buf[10] = {0};
-  12          sbit servoMotorH = P2 ^ 1;
-  13          //sbit servoMotorV = P2 ^ 2;
-  14          void adjustAngle(unsigned int TGTAngle, unsigned int *currentAngle, unsigned int del) // 缓慢转动云�
-             -�
-  15          {
-  16   1        if (TGTAngle < *currentAngle)
-  17   1        {
-  18   2          while (*currentAngle - TGTAngle >= 12)
-  19   2          {
-  20   3            *currentAngle -= 12;
-  21   3            delay(del);
-  22   3          }
-  23   2        }
-  24   1        if (TGTAngle > *currentAngle)
-  25   1        {
-  26   2          while (TGTAngle - *currentAngle >= 12)
-  27   2          {
-  28   3            *currentAngle += 12;
-  29   3            delay(del);
-  30   3          }
-  31   2        }
-  32   1      }
-  33          void drawLine(unsigned int len) // 画直线
-  34          {
-  35   1        if (len == 0)
-  36   1        {
-  37   2          return;
+   9          #define delTime 25
+  10          unsigned int menuIndex = 0, servoHAngle = 90, bufCounter = 0, Counter = 0, drawLineFlag = 0, drawLineLen =
+             - 0;
+  11          //unsigned int  servoVAngle = 90;
+  12          unsigned char buf[10] = {0};
+  13          sbit servoMotorH = P2 ^ 1;
+  14          //sbit servoMotorV = P2 ^ 2;
+  15          void adjustAngle(unsigned int TGTAngle, unsigned int *currentAngle, unsigned int del) reentrant // 缓慢�
+             -��动云台
+  16          {
+  17   1        if (TGTAngle < *currentAngle)
+  18   1        {
+  19   2          while (*currentAngle - TGTAngle >= 12)
+  20   2          {
+  21   3            *currentAngle -= 12;
+  22   3            UART_SendByte(*currentAngle / 100 + '0');
+  23   3            UART_SendByte((*currentAngle % 100) / 10 + '0');
+  24   3            UART_SendByte(*currentAngle % 10 + '0');
+  25   3            delay(del);
+  26   3          }
+  27   2        }
+  28   1        if (TGTAngle > *currentAngle)
+  29   1        {
+  30   2          while (TGTAngle - *currentAngle >= 12)
+  31   2          {
+  32   3            *currentAngle += 12;
+  33   3            UART_SendByte(*currentAngle / 100 + '0');
+  34   3            UART_SendByte((*currentAngle % 100) / 10 + '0');
+  35   3            UART_SendByte(*currentAngle % 10 + '0');
+  36   3            delay(del);
+  37   3          }
   38   2        }
-  39   1        adjustAngle(90, &servoHAngle, 500);
-  40   1        adjustAngle(90 - len / 2, &servoHAngle, 500);
-  41   1        adjustAngle(90 + len / 2, &servoHAngle, 500);
-  42   1        adjustAngle(90, &servoHAngle, 500);
-  43   1      }
-  44          /**
-  45          void drawTiltedLine(unsigned int ang,unsigned int *H,unsigned int *V,unsigned int del,unsigned char v)//�
+  39   1      }
+  40          void drawLine(unsigned int len) // 画直线
+  41          {
+  42   1        if (len == 0)
+  43   1        {
+  44   2          return;
+  45   2        }
+  46   1        /**
+  47   1        UART_SendByte(len);
+  48   1        adjustAngle(90, &servoHAngle, delTime);
+  49   1        delay(500);
+  50   1        adjustAngle(90 - len, &servoHAngle, delTime);
+  51   1        delay(500);
+  52   1        adjustAngle(90 + len, &servoHAngle, delTime);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 20:08:12 PAGE 2   
+
+  53   1        delay(500);
+  54   1        adjustAngle(90, &servoHAngle, delTime);
+  55   1        UART_SendByte(servoHAngle+'0');
+  56   1        **/
+  57   1        servoHAngle=90;
+  58   1        delay(100);
+  59   1        servoHAngle=90-len;
+  60   1        delay(100);
+  61   1        servoHAngle=90+len;
+  62   1        delay(100);
+  63   1        servoHAngle=90;
+  64   1      }
+  65          /**
+  66          void drawTiltedLine(unsigned int ang,unsigned int *H,unsigned int *V,unsigned int del,unsigned char v)//�
              -�45度线
-  46          {
-  47            if(ang < *H)
-  48            {
-  49              while(*H - ang >= 12)
-  50              {
-  51                *H -= 12;
-  52                if(v=='u')
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 18:59:59 PAGE 2   
-
-  53                {*V += 12;}
-  54                else{*V -= 12;}
-  55                delay(del);
-  56              }
-  57            }
-  58            if(ang > *H)
-  59            {
-  60              while(ang - *H >= 12)
-  61              {
-  62                *H += 12;
-  63                if(v=='u')
-  64                {*V += 12;}
-  65                else{*V -= 12;}
-  66                delay(del);
-  67              }
-  68            }
-  69          }
-  70          
-  71          void adjustDutyCycle()//调整电机角度
-  72          {
-  73            unsigned int i,dat=0;
-  74            for(i=2;buf[i]!='V';i++)
-  75            {
-  76              dat*=10;
-  77              dat+=buf[i]-'0';
+  67          {
+  68            if(ang < *H)
+  69            {
+  70              while(*H - ang >= 12)
+  71              {
+  72                *H -= 12;
+  73                if(v=='u')
+  74                {*V += 12;}
+  75                else{*V -= 12;}
+  76                delay(del);
+  77              }
   78            }
-  79            if(dat>=0&&dat<=180)
+  79            if(ang > *H)
   80            {
-  81              adjustAngleUART(dat,&servoHAngle,500);
-  82            }
-  83            dat=0;
-  84            while(buf[i]!='E')
-  85            {
-  86              i++;
-  87              dat*=10;
-  88              dat+=buf[i]-'0';
+  81              while(ang - *H >= 12)
+  82              {
+  83                *H += 12;
+  84                if(v=='u')
+  85                {*V += 12;}
+  86                else{*V -= 12;}
+  87                delay(del);
+  88              }
   89            }
-  90            if(dat>=0&&dat<=180)
-  91            {
-  92              adjustAngleUART(dat,&servoVAngle,500);
-  93            }
-  94          }
-  95          **/
-  96          unsigned int dataProcess()
-  97          {
-  98   1        unsigned int i, dat = 0;
-  99   1        for (i = 1; buf[i] != 'E'; i++)
- 100   1        {
- 101   2          dat *= 10;
- 102   2          dat += buf[i] - '0';
- 103   2        }
- 104   1        UART_SendStr(dat);
-*** ERROR C214 IN LINE 104 OF main.c: illegal pointer conversion
- 105   1        if (dat <= 180 && dat >= 0)
- 106   1        {
- 107   2          return dat;
- 108   2        }
- 109   1        return 0;
- 110   1      }
- 111          void UART_Routine() interrupt 4
- 112          {
- 113   1        if (RI == 1) // 检测是否是接收数据中断
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 18:59:59 PAGE 3   
+  90          }
+  91          
+  92          void adjustDutyCycle()//调整电机角度
+  93          {
+  94            unsigned int i,dat=0;
+  95            for(i=2;buf[i]!='V';i++)
+  96            {
+  97              dat*=10;
+  98              dat+=buf[i]-'0';
+  99            }
+ 100            if(dat>=0&&dat<=180)
+ 101            {
+ 102              adjustAngleUART(dat,&servoHAngle,500);
+ 103            }
+ 104            dat=0;
+ 105            while(buf[i]!='E')
+ 106            {
+ 107              i++;
+ 108              dat*=10;
+ 109              dat+=buf[i]-'0';
+ 110            }
+ 111            if(dat>=0&&dat<=180)
+ 112            {
+ 113              adjustAngleUART(dat,&servoVAngle,500);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 20:08:12 PAGE 3   
 
- 114   1        {
- 115   2          // 接收数据并写入字符串
- 116   2          if (SBUF == 'S')
- 117   2          {
- 118   3            bufCounter = 0;
- 119   3          }
- 120   2          buf[bufCounter] = SBUF;
- 121   2          bufCounter++;
- 122   2          if (SBUF == 'E')
- 123   2          {
- 124   3            if (menuIndex == 1)
- 125   3            {
- 126   4              drawLine(dataProcess());
- 127   4              
- 128   4            }
- 129   3            UART_SendStr(buf);
- 130   3          }
- 131   2          RI = 0; // 软件置0
- 132   2        }
+ 114            }
+ 115          }
+ 116          **/
+ 117          unsigned int dataProcess()
+ 118          {
+ 119   1        unsigned int i, dat = 0;
+ 120   1        for (i = 1; buf[i] != 'E'; i++)
+ 121   1        {
+ 122   2          dat *= 10;
+ 123   2          dat += buf[i] - '0';
+ 124   2        }
+ 125   1        UART_SendByte(dat / 100 + '0');
+ 126   1        UART_SendByte((dat % 100) / 10 + '0');
+ 127   1        UART_SendByte(dat % 10 + '0');
+ 128   1        if (dat <= 180 && dat >= 0)
+ 129   1        {
+ 130   2          return dat;
+ 131   2        }
+ 132   1        return 0;
  133   1      }
- 134          
- 135          void Timer_Routine() interrupt 1
- 136          {
- 137   1        TL0 = (65536 - 92) % 256; // 设置定时初值
- 138   1        TH0 = (65536 - 92) / 256;
- 139   1        Counter++;
- 140   1        Counter %= 200; // 重置counter,现在的值是200,即20ms
- 141   1      
- 142   1        if (Counter < (servoHAngle / 12) + 5) // 神秘舵机从0.5ms到2ms转180度
- 143   1        {
- 144   2          servoMotorH = 1;
- 145   2        }
- 146   1        else
- 147   1        {
- 148   2          servoMotorH = 0;
- 149   2        }
- 150   1        /**
- 151   1        if (Counter < (servoVAngle / 12) + 5) // 神秘舵机从0.5ms到2ms转180度，要除以12
- 152   1        {
- 153   1          servoMotorV = 1;
- 154   1        }
- 155   1        else
- 156   1        {
- 157   1          servoMotorV = 0;
- 158   1        }
- 159   1        **/
- 160   1      }
- 161          /**
- 162          void drawTri()
- 163          {
- 164            adjustAngle(90,&servoHAngle,500);
- 165            adjustAngle(110,&servoVAngle,500);
- 166            adjustAngle(70,&servoHAngle,500);
- 167            drawTiltedLine(90,&servoHAngle,&servoVAngle,500,'u');
- 168            drawTiltedLine(70,&servoHAngle,&servoVAngle,500,'d');
- 169            adjustAngle(90,&servoHAngle,500);
- 170          }
- 171          void drawTriWLen()
- 172          {
- 173            adjustAngle(90,&servoHAngle,500);
- 174            adjustAngle(45,&servoVAngle,500);
- 175            adjustAngle(45,&servoHAngle,500);
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 18:59:59 PAGE 4   
+ 134          void UART_Routine() interrupt 4
+ 135          {
+ 136   1        if (RI == 1) // 检测是否是接收数据中断
+ 137   1        {
+ 138   2          // 接收数据并写入字符串
+ 139   2          if (SBUF == 'S')
+ 140   2          {
+ 141   3            bufCounter = 0;
+ 142   3          }
+ 143   2          buf[bufCounter] = SBUF;
+ 144   2          bufCounter++;
+ 145   2          if (SBUF == 'E')
+ 146   2          {
+ 147   3            if (menuIndex == 1)
+ 148   3            {
+ 149   4              drawLineLen = dataProcess();
+ 150   4              drawLineFlag = 1;
+ 151   4            }
+ 152   3            UART_SendStr(buf);
+ 153   3          }
+ 154   2          RI = 0; // 软件置0
+ 155   2        }
+ 156   1      }
+ 157          
+ 158          void Timer_Routine() interrupt 1
+ 159          {
+ 160   1        TL0 = (65536 - 92) % 256; // 设置定时初值
+ 161   1        TH0 = (65536 - 92) / 256;
+ 162   1        Counter++;
+ 163   1        Counter %= 200; // 重置counter,现在的值是200,即20ms
+ 164   1      
+ 165   1        if (Counter < (servoHAngle / 12 + 5)) // 神秘舵机从0.5ms到2ms转180度
+ 166   1        {
+ 167   2          servoMotorH = 1;
+ 168   2        }
+ 169   1        else
+ 170   1        {
+ 171   2          servoMotorH = 0;
+ 172   2        }
+ 173   1        /**
+ 174   1        if (Counter < (servoVAngle / 12) + 5) // 神秘舵机从0.5ms到2ms转180度，要除以12
+ 175   1        {
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 20:08:12 PAGE 4   
 
- 176            drawTiltedLine(90,&servoHAngle,&servoVAngle,500,'u');
- 177            drawTiltedLine(135,&servoHAngle,&servoVAngle,500,'d');
- 178            adjustAngle(90,&servoHAngle,500);
- 179          }
- 180          **/
- 181          void GUILogic(unsigned int key) // UI逻辑
- 182          {
- 183   1        if (menuIndex == 0) // 初始界面
- 184   1        {
- 185   2          if (key == 2)
- 186   2          {
- 187   3            menuIndex = 2;
- 188   3            return;
- 189   3          }
- 190   2          if (key == 1)
- 191   2          {
- 192   3            menuIndex = 1;
- 193   3            return;
- 194   3          }
- 195   2        }
- 196   1        if (menuIndex == 1)
- 197   1        {
- 198   2          if (key == 11)
- 199   2          {
- 200   3            menuIndex = 0;
- 201   3            return;
- 202   3          }
- 203   2        }
- 204   1        if (menuIndex == 2)
- 205   1        {
- 206   2          if (key == 2)
- 207   2          {
- 208   3            if (servoHAngle - addDeg >= 0&& servoHAngle - addDeg <= 180)
- 209   3            {
- 210   4              servoHAngle -= addDeg;
- 211   4            }
- 212   3            return;
- 213   3          }
- 214   2          if (key == 1)
- 215   2          {
- 216   3            if (servoHAngle + addDeg <= 180&& servoHAngle + addDeg >= 0)
- 217   3            {
- 218   4              servoHAngle += addDeg;
- 219   4            }
- 220   3            return;
- 221   3          }
- 222   2          if (key == 11)
- 223   2          {
- 224   3            menuIndex = 0;
- 225   3            return;
- 226   3          }
- 227   2        }
- 228   1      }
- 229          void drawGUI() // 显示UI,画的时候临时禁用中断不然画的非常慢
- 230          {
- 231   1        EA = 0;
- 232   1        OLED_Clear();
- 233   1        if (menuIndex == 0) // 初始界面
- 234   1        {
- 235   2          OLED_ShowString(1, 1, "  Modes:");
- 236   2          OLED_ShowString(2, 1, "1.draw Line");
- 237   2          OLED_ShowString(3, 1, "2.Manual Angle");
-C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 18:59:59 PAGE 5   
+ 176   1          servoMotorV = 1;
+ 177   1        }
+ 178   1        else
+ 179   1        {
+ 180   1          servoMotorV = 0;
+ 181   1        }
+ 182   1        **/
+ 183   1      }
+ 184          /**
+ 185          void drawTri()
+ 186          {
+ 187            adjustAngle(90,&servoHAngle,500);
+ 188            adjustAngle(110,&servoVAngle,500);
+ 189            adjustAngle(70,&servoHAngle,500);
+ 190            drawTiltedLine(90,&servoHAngle,&servoVAngle,500,'u');
+ 191            drawTiltedLine(70,&servoHAngle,&servoVAngle,500,'d');
+ 192            adjustAngle(90,&servoHAngle,500);
+ 193          }
+ 194          void drawTriWLen()
+ 195          {
+ 196            adjustAngle(90,&servoHAngle,500);
+ 197            adjustAngle(45,&servoVAngle,500);
+ 198            adjustAngle(45,&servoHAngle,500);
+ 199            drawTiltedLine(90,&servoHAngle,&servoVAngle,500,'u');
+ 200            drawTiltedLine(135,&servoHAngle,&servoVAngle,500,'d');
+ 201            adjustAngle(90,&servoHAngle,500);
+ 202          }
+ 203          **/
+ 204          void GUILogic(unsigned int key) // UI逻辑
+ 205          {
+ 206   1        if (menuIndex == 0) // 初始界面
+ 207   1        {
+ 208   2          if (key == 2)
+ 209   2          {
+ 210   3            menuIndex = 2;
+ 211   3            return;
+ 212   3          }
+ 213   2          if (key == 1)
+ 214   2          {
+ 215   3            menuIndex = 1;
+ 216   3            return;
+ 217   3          }
+ 218   2        }
+ 219   1        if (menuIndex == 1)
+ 220   1        {
+ 221   2          if (key == 11)
+ 222   2          {
+ 223   3            menuIndex = 0;
+ 224   3            return;
+ 225   3          }
+ 226   2        }
+ 227   1        if (menuIndex == 2)
+ 228   1        {
+ 229   2          if (key == 2)
+ 230   2          {
+ 231   3            if (servoHAngle - addDeg >= 0&& servoHAngle - addDeg <= 180)
+ 232   3            {
+ 233   4              servoHAngle -= addDeg;
+ 234   4              //adjustAngle(servoHAngle - addDeg, &servoHAngle, delTime);
+ 235   4            }
+ 236   3            return;
+ 237   3          }
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 20:08:12 PAGE 5   
 
- 238   2        }
- 239   1        if (menuIndex == 1) // UART控制画线
- 240   1        {
- 241   2          OLED_ShowString(1, 1, "   UART");
- 242   2          OLED_ShowString(2, 1, "Controlling");
- 243   2        }
- 244   1        if (menuIndex == 2) // 按键控制舵机角度
- 245   1        {
- 246   2          OLED_ShowString(1, 1, "Angle:");
- 247   2          OLED_ShowNum(1, 7, servoHAngle, 3);
- 248   2          OLED_ShowString(2, 1, "1.add 45deg");
- 249   2          OLED_ShowString(3, 1, "2.subtract 45deg");
- 250   2        }
- 251   1        EA = 1;
- 252   1      }
- 253          void main()
- 254          {
- 255   1        unsigned int keyDown = 0;
- 256   1        unsigned int key = 0;
- 257   1        OLED_Init();
- 258   1        PWM_Init();
- 259   1        UART_Init();
- 260   1        drawGUI();
- 261   1        while (1)
- 262   1        {
- 263   2          if (keyDown == 0)
- 264   2          {
- 265   3            key = scanKeyPress();
- 266   3            keyDown = key;
- 267   3            if (key != 0)
- 268   3            {
- 269   4              GUILogic(key);
- 270   4              drawGUI();
- 271   4            }
- 272   3          }
- 273   2          else
- 274   2          {
- 275   3            if (scanKeyRelease(keyDown) == 0)
- 276   3            {
- 277   4              keyDown = 0;
- 278   4              key = 0;
- 279   4            }
- 280   3          }
- 281   2        }
- 282   1      }
+ 238   2          if (key == 1)
+ 239   2          {
+ 240   3            if (servoHAngle + addDeg <= 180&& servoHAngle + addDeg >= 0)
+ 241   3            {
+ 242   4              servoHAngle += addDeg;
+ 243   4              //adjustAngle(servoHAngle + addDeg, &servoHAngle, delTime);
+ 244   4            }
+ 245   3            return;
+ 246   3          }
+ 247   2          if (key == 11)
+ 248   2          {
+ 249   3            menuIndex = 0;
+ 250   3            return;
+ 251   3          }
+ 252   2        }
+ 253   1      }
+ 254          void drawGUI() // 显示UI,画的时候临时禁用中断不然画的非常慢
+ 255          {
+ 256   1        EA = 0;
+ 257   1        OLED_Clear();
+ 258   1        if (menuIndex == 0) // 初始界面
+ 259   1        {
+ 260   2          OLED_ShowString(1, 1, "  Modes:");
+ 261   2          OLED_ShowString(2, 1, "1.draw Line");
+ 262   2          OLED_ShowString(3, 1, "2.Manual Angle");
+ 263   2        }
+ 264   1        if (menuIndex == 1) // UART控制画线
+ 265   1        {
+ 266   2          OLED_ShowString(1, 1, "   UART");
+ 267   2          OLED_ShowString(2, 1, "Controlling");
+ 268   2        }
+ 269   1        if (menuIndex == 2) // 按键控制舵机角度
+ 270   1        {
+ 271   2          OLED_ShowString(1, 1, "Angle:");
+ 272   2          OLED_ShowNum(1, 7, servoHAngle, 3);
+ 273   2          OLED_ShowString(2, 1, "1.add 45deg");
+ 274   2          OLED_ShowString(3, 1, "2.subtract 45deg");
+ 275   2        }
+ 276   1        EA = 1;
+ 277   1      }
+ 278          void main()
+ 279          {
+ 280   1        unsigned int keyDown = 0;
+ 281   1        unsigned int key = 0;
+ 282   1        OLED_Init();
+ 283   1        PWM_Init();
+ 284   1        UART_Init();
+ 285   1        drawGUI();
+ 286   1        while (1)
+ 287   1        {
+ 288   2          if (drawLineFlag)
+ 289   2          {
+ 290   3            drawLineFlag = 0;
+ 291   3            drawLine(drawLineLen);
+ 292   3          }
+ 293   2          if (keyDown == 0)
+ 294   2          {
+ 295   3            key = scanKeyPress();
+ 296   3            keyDown = key;
+ 297   3            if (key != 0)
+ 298   3            {
+ 299   4              GUILogic(key);
+C51 COMPILER V9.60.7.0   MAIN                                                              01/22/2026 20:08:12 PAGE 6   
 
-C51 COMPILATION COMPLETE.  0 WARNING(S),  1 ERROR(S)
+ 300   4              drawGUI();
+ 301   4            }
+ 302   3          }
+ 303   2          else
+ 304   2          {
+ 305   3            if (scanKeyRelease(keyDown) == 0)
+ 306   3            {
+ 307   4              keyDown = 0;
+ 308   4              key = 0;
+ 309   4            }
+ 310   3          }
+ 311   2        }
+ 312   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1271    ----
+   CONSTANT SIZE    =   1612    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     22       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
